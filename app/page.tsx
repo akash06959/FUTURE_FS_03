@@ -2,18 +2,22 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ArtGallery from './components/ArtGallery';
 import { SectionWrapper } from './components/SectionWrapper';
+import Marquee from './components/Marquee'; // <--- 1. Import this
 
 export default function Home() {
   return (
     <main>
       <Navbar />
 
-      {/* HERO (No ID needed, it's at the top) */}
+      {/* SECTION 1: HERO */}
       <SectionWrapper bgImage="https://images.unsplash.com/photo-1594750873177-2292f75b060d?q=80&w=2000" opacity="80">
         <Hero />
       </SectionWrapper>
 
-      {/* SECTION 2: PHILOSOPHY (ID = about) */}
+      {/* 2. ADD MARQUEE HERE (Between Hero and Philosophy) */}
+      <Marquee />
+
+      {/* SECTION 2: PHILOSOPHY */}
       <SectionWrapper id="about" bgImage="https://images.unsplash.com/photo-1486718448742-163732cd1544?q=80&w=2000" opacity="95">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-yale-blue text-sm font-bold tracking-[0.3em] uppercase mb-8">The Philosophy</p>
@@ -28,12 +32,12 @@ export default function Home() {
         </div>
       </SectionWrapper>
 
-      {/* SECTION 3: THE GALLERY (ID = exhibitions) */}
+      {/* SECTION 3: THE GALLERY */}
       <SectionWrapper id="exhibitions" bgImage="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=2000" opacity="90">
         <ArtGallery />
       </SectionWrapper>
 
-      {/* SECTION 4: ADMISSIONS (ID = visit) */}
+      {/* SECTION 4: ADMISSIONS */}
       <SectionWrapper id="visit" bgImage="https://images.unsplash.com/photo-1507643179173-61786aa903a7?q=80&w=2000" opacity="85">
         <div className="grid md:grid-cols-2 gap-16 items-center bg-white p-12 md:p-20 shadow-2xl border-l-8 border-yale-blue">
           <div>
