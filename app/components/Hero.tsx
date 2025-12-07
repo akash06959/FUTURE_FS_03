@@ -47,7 +47,7 @@ export default function Hero() {
           transition={{ duration: 0.5, delay: 1 }}
           className="flex justify-center gap-4"
         >
-          <button className="bg-yale-blue text-white px-8 py-4 text-xs font-bold tracking-widest hover:bg-black transition-all duration-500">
+          <button className="bg-yale-blue text-white px-8 py-4 text-xs font-bold tracking-widest hover:bg-black hover:scale-105 transition-all duration-500">
             ENTER GALLERY
           </button>
         </motion.div>

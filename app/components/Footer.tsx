@@ -11,9 +11,9 @@ export function Footer() {
           </div>
           
           <div className="flex gap-8 text-xs font-bold tracking-widest text-gray-500 uppercase">
-            <a href="#" className="hover:text-yale-blue transition">Instagram</a>
-            <a href="#" className="hover:text-yale-blue transition">Twitter</a>
-            <a href="#" className="hover:text-yale-blue transition">Exhibitions</a>
+            <a href="#" className="hover:text-[#FF4500] transition">Instagram</a>
+            <a href="#" className="hover:text-[#FF4500] transition">Twitter</a>
+            <a href="#" className="hover:text-[#FF4500] transition">Exhibitions</a>
           </div>
         </div>
       </footer>

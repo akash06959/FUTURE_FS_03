@@ -10,9 +10,10 @@ const config: Config = {
     extend: {
       colors: {
         yale: {
-          blue: "#00356b", // The official Yale Blue
+          blue: "#00356b",
           black: "#222222",
           gray: "#f9f9f9",
+          accent: "#FF4500", // 👈 THIS IS THE NEW ORANGE COLOR
         },
       },
       fontFamily: {
