@@ -38,3 +38,7 @@ body {
   background-image: url("https://grainy-gradients.vercel.app/noise.svg");
   filter: contrast(170%) brightness(100%);
 }
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}

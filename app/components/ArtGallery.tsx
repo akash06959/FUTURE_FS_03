@@ -4,6 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import Link from 'next/link';
 import { motion } from 'framer-motion'; // 1. Add motion to imports
+import Skeleton from './Skeleton';
 
 interface Artwork {
   id: string;
@@ -42,7 +43,19 @@ export default function ArtGallery() {
     ? artworks 
     : artworks.filter(art => art.category === selectedCategory);
 
-  if (loading) return <div className="p-20 text-center">Loading Gallery...</div>;
+  if (loading) return (
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="aspect-[3/4]">
+              <Skeleton />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <section className="py-24 bg-white text-yale-black">
