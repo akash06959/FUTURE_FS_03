@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 import Link from 'next/link';
-import { Trash2, Pencil, Plus, Save, X, ArrowLeft } from 'lucide-react';
+import { Trash2, Pencil, Plus, Save, X, ArrowLeft, Search } from 'lucide-react';
 
 interface Artwork {
   id: string;
@@ -11,14 +11,12 @@ interface Artwork {
   artist: string;
   category: string;
   src: string;
-  description?: string; // <--- ADDED THIS
+  description?: string;
 }
 
 export default function AdminDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Added 'description' to the form state
   const [formData, setFormData] = useState({ title: '', artist: '', category: 'Sculpture', src: '', description: '' });
   const [isEditing, setIsEditing] = useState<string | null>(null);
 
@@ -43,10 +41,10 @@ export default function AdminDashboard() {
       if (isEditing) {
         const docRef = doc(db, "artworks", isEditing);
         await updateDoc(docRef, formData);
-        alert("Artwork updated!");
+        alert("Archive updated.");
       } else {
         await addDoc(collection(db, "artworks"), formData);
-        alert("New artwork added!");
+        alert("New piece cataloged.");
       }
       setFormData({ title: '', artist: '', category: 'Sculpture', src: '', description: '' });
       setIsEditing(null);
@@ -58,7 +56,7 @@ export default function AdminDashboard() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this artwork?")) {
+    if (confirm("Permanently remove this piece from the archive?")) {
       await deleteDoc(doc(db, "artworks", id));
       fetchArt();
     }
@@ -70,7 +68,7 @@ export default function AdminDashboard() {
       artist: art.artist, 
       category: art.category, 
       src: art.src,
-      description: art.description || '' // Load description if it exists
+      description: art.description || '' 
     });
     setIsEditing(art.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -81,81 +79,160 @@ export default function AdminDashboard() {
     setFormData({ title: '', artist: '', category: 'Sculpture', src: '', description: '' });
   };
 
-  if (loading) return <div className="p-10 text-center">Loading Dashboard...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center font-serif text-xl animate-pulse">Accessing Archive...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-yale-blue">Curator Dashboard</h1>
-          <Link href="/" className="flex items-center gap-2 text-sm text-gray-500 hover:text-yale-blue">
-            <ArrowLeft size={16} /> Back to Live Site
+    <div className="min-h-screen bg-white text-black p-6 md:p-20">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 border-b border-black pb-6">
+          <div>
+            <p className="text-xs font-bold tracking-[0.3em] uppercase text-gray-400 mb-2">Internal System</p>
+            <h1 className="text-4xl md:text-5xl font-serif">Curator Dashboard</h1>
+          </div>
+          <Link href="/" className="group flex items-center gap-3 text-xs font-bold tracking-widest uppercase mt-4 md:mt-0 hover:text-yale-accent transition-colors">
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+            Back to Gallery
           </Link>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-10">
-          <div className="flex items-center gap-2 mb-4 text-lg font-bold text-gray-800">
-            {isEditing ? <Pencil size={20} className="text-orange-500"/> : <Plus size={20} className="text-green-500"/>}
-            {isEditing ? "Edit Artwork" : "Add New Artwork"}
+        <div className="grid lg:grid-cols-3 gap-16">
+          
+          {/* LEFT COLUMN: THE FORM */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-10">
+              <div className="flex items-center gap-2 mb-8 text-xl font-serif italic">
+                {isEditing ? <Pencil size={20} className="text-yale-accent"/> : <Plus size={20} className="text-gray-400"/>}
+                {isEditing ? "Edit Metadata" : "Catalog New Piece"}
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="space-y-6">
+                  <input 
+                    className="w-full bg-transparent border-b border-gray-300 py-3 text-lg font-serif outline-none focus:border-yale-accent transition-colors placeholder:text-gray-300" 
+                    placeholder="Artwork Title" 
+                    value={formData.title} 
+                    onChange={e => setFormData({...formData, title: e.target.value})} 
+                    required 
+                  />
+                  <input 
+                    className="w-full bg-transparent border-b border-gray-300 py-3 text-sm outline-none focus:border-yale-accent transition-colors placeholder:text-gray-300" 
+                    placeholder="Artist Name" 
+                    value={formData.artist} 
+                    onChange={e => setFormData({...formData, artist: e.target.value})} 
+                    required 
+                  />
+                  
+                  <div className="relative">
+                    <select 
+                      className="w-full bg-transparent border-b border-gray-300 py-3 text-sm outline-none focus:border-yale-accent transition-colors appearance-none cursor-pointer" 
+                      value={formData.category} 
+                      onChange={e => setFormData({...formData, category: e.target.value})}
+                    >
+                      <option value="Sculpture">Sculpture</option>
+                      <option value="Digital">Digital</option>
+                      <option value="Photography">Photography</option>
+                      <option value="Architecture">Architecture</option>
+                    </select>
+                    <div className="absolute right-0 top-3 pointer-events-none text-gray-400">▼</div>
+                  </div>
+
+                  <input 
+                    className="w-full bg-transparent border-b border-gray-300 py-3 text-sm outline-none focus:border-yale-accent transition-colors placeholder:text-gray-300" 
+                    placeholder="Image URL (Unsplash/Direct Link)" 
+                    value={formData.src} 
+                    onChange={e => setFormData({...formData, src: e.target.value})} 
+                    required 
+                  />
+                  
+                  <textarea 
+                    className="w-full bg-gray-50 border-none p-4 text-sm leading-relaxed outline-none focus:ring-1 focus:ring-yale-accent transition-all resize-none" 
+                    placeholder="Curatorial Description..." 
+                    rows={6}
+                    value={formData.description} 
+                    onChange={e => setFormData({...formData, description: e.target.value})} 
+                    required 
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button type="submit" className={`flex-1 flex items-center justify-center gap-2 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:scale-105 ${isEditing ? 'bg-yale-accent' : 'bg-black hover:bg-yale-accent'}`}>
+                    <Save size={16} /> {isEditing ? "Save Changes" : "Add to Collection"}
+                  </button>
+                  
+                  {isEditing && (
+                    <button type="button" onClick={handleCancel} className="px-4 border border-gray-200 hover:border-red-500 hover:text-red-500 transition-colors">
+                      <X size={20} />
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-4">
-            <input className="border p-3 rounded bg-gray-50" placeholder="Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
-            <input className="border p-3 rounded bg-gray-50" placeholder="Artist" value={formData.artist} onChange={e => setFormData({...formData, artist: e.target.value})} required />
-            <select className="border p-3 rounded bg-gray-50" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-              <option value="Sculpture">Sculpture</option>
-              <option value="Digital">Digital</option>
-              <option value="Photography">Photography</option>
-              <option value="Architecture">Architecture</option>
-            </select>
-            <input className="border p-3 rounded bg-gray-50" placeholder="Image URL" value={formData.src} onChange={e => setFormData({...formData, src: e.target.value})} required />
-            
-            {/* NEW DESCRIPTION BOX */}
-            <textarea 
-              className="border p-3 rounded bg-gray-50 md:col-span-2 h-32" 
-              placeholder="Artwork Description..." 
-              value={formData.description} 
-              onChange={e => setFormData({...formData, description: e.target.value})} 
-              required 
-            />
+          {/* RIGHT COLUMN: THE TABLE */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-serif">Archive Inventory</h3>
+              <div className="text-xs font-bold tracking-widest text-gray-400">{artworks.length} ITEMS</div>
+            </div>
 
-            <div className="md:col-span-2 flex gap-3 mt-2">
-              <button type="submit" className={`flex items-center justify-center gap-2 px-6 py-3 rounded text-white font-bold w-full transition ${isEditing ? 'bg-orange-500 hover:bg-orange-600' : 'bg-yale-blue hover:bg-black'}`}>
-                <Save size={18} /> {isEditing ? "Update Changes" : "Save to Gallery"}
-              </button>
-              {isEditing && (
-                <button type="button" onClick={handleCancel} className="px-6 py-3 rounded border border-gray-300 hover:bg-gray-100 text-gray-500"><X size={18} /></button>
+            <div className="border-t border-gray-100">
+              <table className="w-full text-left border-collapse">
+                <thead className="text-xs uppercase tracking-widest text-gray-400 border-b border-gray-100">
+                  <tr>
+                    <th className="py-4 font-normal">Preview</th>
+                    <th className="py-4 font-normal">Metadata</th>
+                    <th className="py-4 font-normal text-right">Controls</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {artworks.map((art) => (
+                    <tr key={art.id} className="group hover:bg-gray-50 transition-colors">
+                      <td className="py-6 pr-4 align-top w-24">
+                        <div className="relative aspect-square bg-gray-100 overflow-hidden">
+                          <img src={art.src} alt={art.title} className="object-cover w-full h-full group-hover:scale-110 transition duration-700 grayscale group-hover:grayscale-0" />
+                        </div>
+                      </td>
+                      <td className="py-6 px-4 align-top">
+                        <div className="font-serif text-xl mb-1">{art.title}</div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{art.artist}</div>
+                        <span className="inline-block px-2 py-1 text-[10px] font-bold uppercase tracking-widest border border-gray-200 text-gray-500">
+                          {art.category}
+                        </span>
+                      </td>
+                      <td className="py-6 pl-4 align-top text-right">
+                        <div className="flex justify-end gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => handleEditClick(art)}
+                            className="text-gray-400 hover:text-yale-accent transition-colors" 
+                            title="Edit"
+                          >
+                            <Pencil size={18} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(art.id)}
+                            className="text-gray-400 hover:text-red-500 transition-colors" 
+                            title="Delete"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {artworks.length === 0 && (
+                <div className="py-20 text-center text-gray-300 italic font-serif">
+                  The archive is currently empty.
+                </div>
               )}
             </div>
-          </form>
-        </div>
+          </div>
 
-        {/* Table View */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-400 font-bold">
-              <tr>
-                <th className="p-4">Artwork</th>
-                <th className="p-4">Details</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {artworks.map((art) => (
-                <tr key={art.id} className="hover:bg-gray-50 transition">
-                  <td className="p-4"><img src={art.src} alt={art.title} className="w-12 h-12 object-cover rounded shadow-sm" /></td>
-                  <td className="p-4">
-                    <div className="font-bold text-gray-800">{art.title}</div>
-                    <div className="text-xs text-gray-500">{art.artist} • {art.category}</div>
-                  </td>
-                  <td className="p-4 text-right flex justify-end gap-2">
-                    <button onClick={() => handleEditClick(art)} className="p-2 text-blue-500 hover:bg-blue-50 rounded transition"><Pencil size={18} /></button>
-                    <button onClick={() => handleDelete(art.id)} className="p-2 text-red-400 hover:bg-red-50 rounded transition"><Trash2 size={18} /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
